@@ -8,7 +8,7 @@ const sum = (list, options = {labels: []}) => {
 
       const indices = list.reduce((acc, listItem, index) => {
         if (listItem === item) {
-          acc.push(index + 1);
+          acc.push(index);
         }
         return acc;
       }, []);
@@ -20,7 +20,7 @@ const sum = (list, options = {labels: []}) => {
       // I probably need to feed an ordered list of ranges per value, to enable
       // ["a", "a", "b", "a"] to be "1, 2 and 4: a" instead of "1 and 2 and 4: a"
       const rangeTexts = rangesToTexts(
-        indicesToRangesWithMinLengthThree(indices), options
+        indicesToRanges(indices), options
       );
 
       doneWith.push(item);
@@ -30,33 +30,11 @@ const sum = (list, options = {labels: []}) => {
 };
 
 const indicesToRanges = indices => {
-  // [ 1, 2, 3 ] => [Range{from: 1, length: 3}] => ["1 to 3"]
-  // [ 1 ] => [Range{from: 1, length: 1}] => ["1"]
-  // [ 1, 3, 4 ] => [Range{from: 1, length: 1}, Range{from: 3, length: 2}] => ["1", "3 and 4"]
-
-  let result = [];
-  let lastItem;
-  let currentItem;
-  for (let i = 0; i < indices.length; i++) {
-    currentItem = indices[i];
-    const fitsRange = lastItem === currentItem - 1;
-    if (fitsRange) {
-      result[result.length - 1].length++;
-    } else {
-      result.push({
-        from: currentItem,
-        length: 1
-      });
-    }
-
-    lastItem = currentItem;
-  }
-  return result;
-};
-
-const indicesToRangesWithMinLengthThree = indices => {
   // [ 1, 2, 3 ] => [Range{from: 1, length: 3}] (=> "1 to 3")
   // [ 1 ] => [Range{from: 1, length: 1}] (=> "1")
+
+  // Special case: Don't produce ranges of only two subsequent items.
+  // Those are better summed up individual values
   // [ 1, 2 ] => [Range{from: 1, length: 1}, Range{from: 2, length: 1}] (=> "1, 2")
 
   let result = [];
@@ -89,9 +67,13 @@ const indicesToRangesWithMinLengthThree = indices => {
 const rangesToTexts = (ranges, options) => {
   return ranges.map(
     range => {
-      const fromLabel = options.labels[range.from] || range.from;
+      const from = range.from;
+      const humanFrom = from + 1;
+      const fromLabel = options.labels[from] || humanFrom;
+
       const to = range.from + range.length - 1;
-      const toLabel = options.labels[to] || to;
+      const humanTo = to + 1;
+      const toLabel = options.labels[to] || humanTo;
       return range.length === 1
         ? `${fromLabel}`
         : `${fromLabel} to ${toLabel}`
@@ -125,17 +107,33 @@ const sumJoin = (list, separator = ", ", lastSeparator = " and ") =>
 // console.log(sum(interrupted) === '1 and 3: a, 2: b');
 
 // ✅
-// console.log(sum(["a", "a", "a", "b"]) === "1 to 3: a, 4: b");
-// console.log(sum(["a", "b"]) === "1: a, 2: b");
-// console.log(sum(["a", "a", "b"]) === "1 and 2: a, 3: b");
-// console.log(sum(["a", "a", "b", "a"]) === "1, 2 and 4: a, 3: b");
-// console.log(sum(["a", "b", "c", "d"]) === "1: a, 2: b, 3: c, 4: d");
-// console.log(sum(["a", "b", "a", "b"]) === "1 and 3: a, 2 and 4: b");
+console.log(sum(["a", "a", "a", "b"]) === "1 to 3: a, 4: b");
+console.log(sum(["a", "b"]) === "1: a, 2: b");
+console.log(sum(["a", "a"]) === "1 and 2: a");
+console.log(sum(["a", "a", "b"]) === "1 and 2: a, 3: b");
+console.log(sum(["a", "a", "b", "a"]) === "1, 2 and 4: a, 3: b");
+console.log(sum(["a", "b", "c", "d"]) === "1: a, 2: b, 3: c, 4: d");
+console.log(sum(["a", "b", "a", "b"]) === "1 and 3: a, 2 and 4: b");
 
-console.log(sum([
-  "Work", "Work", "Work", "Work", "Work", "Weekend", "Weekend"
-], { labels: [
-  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-}))
+// console.log(sum([
+//   "Work", "Work", "Work", "Work", "Work", "Weekend", "Weekend"
+// ], { labels: [
+//   "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+// }))
 
-
+// console.log(sum([
+//   "31 days",
+//   "28 days",
+//   "31 days",
+//   "30 days",
+//   "31 days",
+//   "30 days",
+//   "31 days",
+//   "31 days",
+//   "30 days",
+//   "31 days",
+//   "30 days",
+//   "31 days"
+// ], { labels: [
+//   "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+// }))
