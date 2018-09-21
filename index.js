@@ -13,14 +13,18 @@ const sum = list => {
         return acc;
       }, []);
       // indices is now a list of indices that might include several ranges
-      // let worry about making this into ranges later.
+
       // [1, 2, 3] should become '1 to 3', in a way it's a extra sophisticated sumJoin.
       // We can get to have several ranges though, and those we'll want to sumjoin, so lets make this a step here.
 
-      const ranges = rangesToText(indicesToRanges(indices));
+      // I probably need to feed an ordered list of ranges per value, to enable
+      // ["a", "a", "b", "a"] to be "1, 2 and 4: a" instead of "1 and 2 and 4: a"
+      const rangeTexts = rangesToTexts(
+        indicesToRangesWithMinLengthThree(indices)
+      );
 
       doneWith.push(item);
-      return [...acc, `${sumJoin(ranges)}: ${item}`];
+      return [...acc, `${sumJoin(rangeTexts)}: ${item}`];
     }, [])
     .join(", ");
 };
@@ -50,7 +54,39 @@ const indicesToRanges = indices => {
   return result;
 };
 
-const rangesToText = ranges => {
+const indicesToRangesWithMinLengthThree = indices => {
+  // [ 1, 2, 3 ] => [Range{from: 1, length: 3}] (=> "1 to 3")
+  // [ 1 ] => [Range{from: 1, length: 1}] (=> "1")
+  // [ 1, 2 ] => [Range{from: 1, length: 1}, Range{from: 2, length: 1}] (=> "1, 2")
+
+  let result = [];
+  for (let i = 0; i < indices.length; i++) {
+    const prevItem = indices[i - 1];
+    const currentItem = indices[i];
+    const nextItem = indices[i + 1];
+    const currentRange = result[result.length - 1];
+    const fitsRange = prevItem === currentItem - 1;
+    // console.log({ prevItem, currentItem, nextItem });
+
+    // We want to avoid ranges with a length of 2.
+    const completesValidRange =
+      fitsRange && currentRange && currentRange.length >= 2;
+    const buildsValidRange = fitsRange && prevItem === nextItem - 2;
+    const validRange = completesValidRange || buildsValidRange;
+
+    if (validRange) {
+      currentRange.length++;
+    } else {
+      result.push({
+        from: currentItem,
+        length: 1
+      });
+    }
+  }
+  return result;
+};
+
+const rangesToTexts = ranges => {
   return ranges.map(
     range =>
       range.length === 1
@@ -60,7 +96,6 @@ const rangesToText = ranges => {
           : `${range.from} to ${range.from + range.length - 1}`
   );
 };
-// console.log(rangesToText(indicesToRanges([1, 3, 4]))); ✅
 
 const sumJoin = (list, separator = ", ", lastSeparator = " and ") =>
   list
@@ -78,9 +113,6 @@ const sumJoin = (list, separator = ", ", lastSeparator = " and ") =>
 
 // console.log(sumJoin([1, 2, 3]));
 
-// On this now
-console.log(sum(["a", "a", "a", "b"])); //  === '1 to 3: a, 4: b'
-
 // console.log(indicesToRanges([1, 2, 3])); // ["1 to 3"]
 
 // const list3 = ['a', 'a', 'a'];
@@ -90,7 +122,10 @@ console.log(sum(["a", "a", "a", "b"])); //  === '1 to 3: a, 4: b'
 // const interrupted = ['a', 'b', 'a'];
 // console.log(sum(interrupted) === '1 and 3: a, 2: b');
 
+// On this now
+
 // ✅
-// console.log(sum(['a', 'b']) === '1: a, 2: b');
-// console.log(sum(['a', 'a', 'b']) === '1 and 2: a, 3: b');
-// console.log(sum(['a', 'a', 'b', 'a']) === '1, 2 and 4: a, 3: b');
+console.log(sum(["a", "a", "a", "b"]) === "1 to 3: a, 4: b");
+console.log(sum(["a", "b"]) === "1: a, 2: b");
+console.log(sum(["a", "a", "b"]) === "1 and 2: a, 3: b");
+console.log(sum(["a", "a", "b", "a"]) === "1, 2 and 4: a, 3: b");
