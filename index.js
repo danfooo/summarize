@@ -20,16 +20,9 @@ const sum = (list, options = {}) => {
         }
         return acc;
       }, []);
-      // indices is now a list of indices that might include several ranges
 
-      // [1, 2, 3] should become '1 to 3', in a way it's a extra sophisticated sumJoin.
-      // We can get to have several ranges though, and those we'll want to sumjoin, so lets make this a step here.
-
-      // I probably need to feed an ordered list of ranges per value, to enable
-      // ["a", "a", "b", "a"] to be "1, 2 and 4: a" instead of "1 and 2 and 4: a"
-      const rangeTexts = rangesToTexts(
-        indicesToRanges(indices), options
-      );
+      const ranges = indicesToRanges(indices);
+      const rangeTexts = rangesToTexts(ranges, options);
 
       doneWith.push(item);
 
@@ -42,7 +35,7 @@ const sum = (list, options = {}) => {
 
       return [...acc, `${sumJoin(...sumJoinArgs)}${valueSeparator}${item}`];
     }, [])
-    .join(options.i18n['value-group'] ||", ");
+    .join(options.i18n['value-group'] || ", ");
 };
 
 const indicesToRanges = indices => {
@@ -55,19 +48,20 @@ const indicesToRanges = indices => {
 
   let result = [];
   for (let i = 0; i < indices.length; i++) {
+    const currentRange = result[result.length - 1];
+
     const prevItem = indices[i - 1];
     const currentItem = indices[i];
-    const nextItem = indices[i + 1];
-    const currentRange = result[result.length - 1];
     const fitsRange = prevItem === currentItem - 1;
 
-    // We want to avoid ranges with a length of 2.
+    // Avoid ranges with a length of 2.
+    const nextItem = indices[i + 1];
     const completesValidRange =
       fitsRange && currentRange && currentRange.length >= 2;
-    const buildsValidRange = fitsRange && prevItem === nextItem - 2;
-    const validRange = completesValidRange || buildsValidRange;
+    const buildsValidRange = fitsRange && currentItem === nextItem - 1;
+    const inCurrentRange = completesValidRange || buildsValidRange;
 
-    if (validRange) {
+    if (inCurrentRange) {
       currentRange.length++;
     } else {
       result.push({
@@ -142,26 +136,3 @@ console.log(sum(["a", "b", "a", "a", "a", "d", "d", "e", "d"], {
     'value-group': '; '
   }
 }) === "1 und 3 bis 5 = a; 2 = b; 6، 7 und 9 = d; 8 = e");
-
-// console.log(sum([
-//   "Work", "Work", "Work", "Work", "Work", "Weekend", "Weekend"
-// ], { labels: [
-//   "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-// }))
-
-// console.log(sum([
-//   "31 days",
-//   "28 days",
-//   "31 days",
-//   "30 days",
-//   "31 days",
-//   "30 days",
-//   "31 days",
-//   "31 days",
-//   "30 days",
-//   "31 days",
-//   "30 days",
-//   "31 days"
-// ], { labels: [
-//   "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-// }))
