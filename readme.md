@@ -4,7 +4,7 @@ Summarize takes a list of things, and summarizes it like humans tend to do it.
 
 Here's an example of some calendar data
 ```js
-summarize([
+sum([
   "Work", "Work", "Work", "Work", "Work", "Weekend", "Weekend"
 ])
 ```
@@ -13,7 +13,7 @@ Becomes `1 to 5: Work, 6 and 7: Weekend`.
 It can also be configured with labels for what positions in the list stand for.
 
 ```js
-summarize([
+sum([
   "Work", "Work", "Work", "Work", "Work", "Weekend", "Weekend"
 ], { labels: [
   "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -24,7 +24,7 @@ Becomes `Monday to Friday: Work, Saturday and Sunday: Weekend`.
 While this example is a pretty simple job to sum up, here's a tougher one.
 
 ```js
-summarize([
+sum([
   "31 days",
   "28 days",
   "31 days",
@@ -45,24 +45,26 @@ becomes `January, March, May, July, August, October and December: 31 days, Febru
 
 Ranges and single values can be mixed and the output will still be summarized efficiently:
 ```js
-sum(["a", "b", "a", "a", "a", "d", "d"]));
+sum(["a", "b", "a", "a", "a", "d", "d", "e", "d"]));
 ```
-Becomes `"1 and 3 to 5: a, 2: b, 6 and 7: d"`
+Becomes `"1 and 3 to 5: a, 2: b, 6, 7 and 9: d, 8: e"`
 
 ## Formatting options
 
 To enable localization and probably some different use cases, the different separators and range keywords can be customized.
 
 ```js
-sum(["a", "b", "a", "a", "a", "d", "d"], {
+sum(["a", "b", "a", "a", "a", "d", "d", "e", "d"], {
   i18n: {
-    'and': ' und ',
-    'value-separator': ' = ',
-    'range-separator': ' bis '
+    'list-enum': '، ',
+    'list-enum-last': ' und ',
+    'value': ' = ',
+    'range-to': ' bis ',
+    'value-group': '; '
   }
 }));
 ```
-Becomes `"1 und 3 bis 5 = a, 2 = b, 6 und 7 = d"`
+Becomes `"1 und 3 bis 5 = a; 2 = b; 6، 7 und 9 = d; 8 = e"`
 
 
 
