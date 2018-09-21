@@ -43,6 +43,37 @@ summarize([
 ```
 becomes `January, March, May, July, August, October and December: 31 days, February: 28 days, April, June, September and November: 30 days`.
 
+Ranges and single values can be mixed and the output will still be summarized efficiently:
+```js
+sum(["a", "b", "a", "a", "a", "d", "d"]));
+```
+Becomes `"1 and 3 to 5: a, 2: b, 6 and 7: d"`
+
+## Formatting options
+
+To enable localization and probably some different use cases, the different separators and range keywords can be customized.
+
+```js
+sum(["a", "b", "a", "a", "a", "d", "d"], {
+  i18n: {
+    'and': ' und ',
+    'value-separator': ' = ',
+    'range-separator': ' bis '
+  }
+}));
+```
+Becomes `"1 und 3 bis 5 = a, 2 = b, 6 und 7 = d"`
+
+
+
+
+
+
+
+
+
+
+
 Another way of summing up is by using more specific units / ranges.
 Maybe those would need to be defined with the value though?
 

@@ -44,7 +44,6 @@ const indicesToRanges = indices => {
     const nextItem = indices[i + 1];
     const currentRange = result[result.length - 1];
     const fitsRange = prevItem === currentItem - 1;
-    // console.log({ prevItem, currentItem, nextItem });
 
     // We want to avoid ranges with a length of 2.
     const completesValidRange =
@@ -114,6 +113,7 @@ console.log(sum(["a", "a", "b"]) === "1 and 2: a, 3: b");
 console.log(sum(["a", "a", "b", "a"]) === "1, 2 and 4: a, 3: b");
 console.log(sum(["a", "b", "c", "d"]) === "1: a, 2: b, 3: c, 4: d");
 console.log(sum(["a", "b", "a", "b"]) === "1 and 3: a, 2 and 4: b");
+console.log(sum(["a", "b", "a", "a", "a", "d", "d"]) === "1 and 3 to 5: a, 2: b, 6 and 7: d");
 
 // console.log(sum([
 //   "Work", "Work", "Work", "Work", "Work", "Weekend", "Weekend"
