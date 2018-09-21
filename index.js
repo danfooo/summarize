@@ -1,4 +1,4 @@
-const sum = list => {
+const sum = (list, options = {labels: []}) => {
   doneWith = [];
   return list
     .reduce((acc, item, i, list) => {
@@ -20,7 +20,7 @@ const sum = list => {
       // I probably need to feed an ordered list of ranges per value, to enable
       // ["a", "a", "b", "a"] to be "1, 2 and 4: a" instead of "1 and 2 and 4: a"
       const rangeTexts = rangesToTexts(
-        indicesToRangesWithMinLengthThree(indices)
+        indicesToRangesWithMinLengthThree(indices), options
       );
 
       doneWith.push(item);
@@ -86,14 +86,16 @@ const indicesToRangesWithMinLengthThree = indices => {
   return result;
 };
 
-const rangesToTexts = ranges => {
+const rangesToTexts = (ranges, options) => {
   return ranges.map(
-    range =>
-      range.length === 1
-        ? `${range.from}`
-        : range.length === 2
-          ? `${range.from} and ${range.from + 1}`
-          : `${range.from} to ${range.from + range.length - 1}`
+    range => {
+      const fromLabel = options.labels[range.from] || range.from;
+      const to = range.from + range.length - 1;
+      const toLabel = options.labels[to] || to;
+      return range.length === 1
+        ? `${fromLabel}`
+        : `${fromLabel} to ${toLabel}`
+    }
   );
 };
 
@@ -122,10 +124,18 @@ const sumJoin = (list, separator = ", ", lastSeparator = " and ") =>
 // const interrupted = ['a', 'b', 'a'];
 // console.log(sum(interrupted) === '1 and 3: a, 2: b');
 
-// On this now
-
 // ✅
-console.log(sum(["a", "a", "a", "b"]) === "1 to 3: a, 4: b");
-console.log(sum(["a", "b"]) === "1: a, 2: b");
-console.log(sum(["a", "a", "b"]) === "1 and 2: a, 3: b");
-console.log(sum(["a", "a", "b", "a"]) === "1, 2 and 4: a, 3: b");
+// console.log(sum(["a", "a", "a", "b"]) === "1 to 3: a, 4: b");
+// console.log(sum(["a", "b"]) === "1: a, 2: b");
+// console.log(sum(["a", "a", "b"]) === "1 and 2: a, 3: b");
+// console.log(sum(["a", "a", "b", "a"]) === "1, 2 and 4: a, 3: b");
+// console.log(sum(["a", "b", "c", "d"]) === "1: a, 2: b, 3: c, 4: d");
+// console.log(sum(["a", "b", "a", "b"]) === "1 and 3: a, 2 and 4: b");
+
+console.log(sum([
+  "Work", "Work", "Work", "Work", "Work", "Weekend", "Weekend"
+], { labels: [
+  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+}))
+
+
