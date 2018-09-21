@@ -10,8 +10,14 @@ const sum = (list, options = {}) => {
     options.ranging = true;
   }
 
+  let _list = list;
+  if (Array.isArray(list[0])) {
+    _list = list.map(touple => touple[1]);
+    options.labels = list.map(touple => touple[0]);
+  }
+
   doneWith = [];
-  return list
+  return _list
     .reduce((acc, item, i, list) => {
       if (doneWith.includes(item)) {
         return acc;
@@ -160,3 +166,14 @@ console.log(sum([
   },
   ranging: false,
 }) === "Bananas: No Bones. Humans, Frogs, Cats and Fish: Bones")
+
+// Touple format
+console.log(sum([
+  ["Bananas", "No Bones"],
+  ["Humans", "Bones"],
+  ["Frogs", "Bones"],
+  ["Cats", "Bones"],
+  ["Fish", "Bones"],
+], {
+  ranging: false,
+}) === "Bananas: No Bones, Humans, Frogs, Cats and Fish: Bones")

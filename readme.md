@@ -92,41 +92,19 @@ sum([
     'value-group': '. '
   },
   ranging: false,
-})
+});
 ```
 Becomes `"Bananas: No Bones. Humans, Frogs, Cats and Fish: Bones"`
 
-
-
-
-
-
-
-Another way of summing up is by using more specific units / ranges.
-Maybe those would need to be defined with the value though?
-
+Because the definition of the arguments looks ugly here, you can provide the list in a different format:
 ```js
 sum([
-  ['8:45 am', 'Getting to work'],
-  ['9 am', 'Work'],
-  ['12 pm,', 'Lunch'],
-  ['12:30 pm,', 'Work'],
-  ['5:30 pm,', 'Getting home']
-])
+  ["Bananas", "No Bones"],
+  ["Humans", "Bones"],
+  ["Frogs", "Bones"],
+  ["Cats", "Bones"],
+  ["Fish", "Bones"],
+], {
+  ranging: false,
+});
 ```
-but right now the definition would be like this
-
-```js
-sum([
-  'Getting to work',
-  'Work',
-  'Lunch',
-  'Work',
-  'Getting home'
-], {labels: ['8:45 am', '9 am', '12 pm', '12:30 pm', '5:30 pm']})
-```
-becomes `8:45 am: Getting to work, 9 am and 12:30 pm: Work, 12 pm: Lunch, 5:30 pm: Getting home`
-
-That doesn't make too much sense. This is probably a different use case.
-Maybe output like
-`8:45 - 9am: Getting to work, 9 am to 12:30 pm: Work, 12 pm: Lunch, 12 to 5:30 pm: Work, 5:30 pm: Getting home` is more desirable. Kind of a different problem.
