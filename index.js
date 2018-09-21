@@ -6,6 +6,9 @@ const sum = (list, options = {}) => {
   if (!options.i18n) {
     options.i18n = {};
   }
+  if (options.ranging === undefined) {
+    options.ranging = true;
+  }
 
   doneWith = [];
   return list
@@ -21,7 +24,10 @@ const sum = (list, options = {}) => {
         return acc;
       }, []);
 
-      const ranges = indicesToRanges(indices);
+      const ranges = options.ranging ? indicesToRanges(indices) : indices.map(index => ({
+        from: index,
+        length: 1
+      }));
       const rangeTexts = rangesToTexts(ranges, options);
 
       doneWith.push(item);
@@ -136,3 +142,21 @@ console.log(sum(["a", "b", "a", "a", "a", "d", "d", "e", "d"], {
     'value-group': '; '
   }
 }) === "1 und 3 bis 5 = a; 2 = b; 6، 7 und 9 = d; 8 = e");
+
+console.log(sum([
+  "Twist", "Shout", "Shout", "Shout", "Twist", "Twist", "Shout"
+], { labels: [
+  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+}) === 'Monday, Friday and Saturday: Twist, Tuesday to Thursday and Sunday: Shout')
+
+console.log(sum([
+  "No Bones", "Bones", "Bones", "Bones", "Bones"
+], {
+  labels: [
+    "Bananas", "Humans", "Frogs", "Cats", "Fish"
+  ],
+  i18n: {
+    'value-group': '. '
+  },
+  ranging: false,
+}) === "Bananas: No Bones. Humans, Frogs, Cats and Fish: Bones")

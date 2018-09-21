@@ -21,7 +21,18 @@ sum([
 ```
 Becomes `Monday to Friday: Work, Saturday and Sunday: Weekend`.
 
-While this example is a pretty simple job to sum up, here's a tougher one.
+Or how about a little fancier?
+
+```js
+sum([
+  "Twist", "Shout", "Shout", "Shout", "Twist", "Twist", "Shout"
+], { labels: [
+  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+})
+```
+Becomes `Monday, Friday and Saturday: Twist, Tuesday to Thursday and Sunday: Shout`.
+
+This works well for other time based lists too:
 
 ```js
 sum([
@@ -66,9 +77,24 @@ sum(["a", "b", "a", "a", "a", "d", "d", "e", "d"], {
 ```
 Becomes `"1 und 3 bis 5 = a; 2 = b; 6، 7 und 9 = d; 8 = e"`
 
+# Unranged use cases
 
+If your list is actually not in any particular order, you can also turn ranging off and still sumarize anyway.
 
-
+```js
+sum([
+  "No Bones", "Bones", "Bones", "Bones"
+], {
+  labels: [
+    "Bananas", "Humans", "Frogs", "Cats", "Fish"
+  ],
+  i18n: {
+    'value-group': '. '
+  },
+  ranging: false,
+})
+```
+Becomes `"Bananas: No Bones. Humans, Frogs, Cats and Fish: Bones"`
 
 
 
