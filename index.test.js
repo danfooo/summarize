@@ -48,7 +48,7 @@ test("with i18n", () => {
         "list-enum-last": " und ",
         value: " = ",
         "range-to": " bis ",
-        "value-group": "; "
+        "list-group-enum": "; "
       }
     })
   ).toBe("1 und 3 bis 5 = a; 2 = b; 6، 7 und 9 = d; 8 = e");
@@ -130,7 +130,7 @@ test("without ranging, with touples format, localized", () => {
           "list-enum": " & ",
           "list-enum-last": " as well as ",
           value: " is ",
-          "value-group": " but "
+          "list-group-enum": " but "
         }
       }
     )
@@ -142,8 +142,20 @@ test("last value with own enum", () => {
     sum([["🔴", "red"], ["🍏", "green"], ["👕", "blue"], ["🚕", "yellow"]], {
       ranging: false,
       i18n: {
-        "value-group": "; "
+        "list-group-enum": ", ",
+        "list-group-enum-last": ", yet "
       }
     })
-  ).toBe("🔴: red; 🍏: green; 👕: blue; 🚕: yellow");
+  ).toBe("🔴: red, 🍏: green, 👕: blue, yet 🚕: yellow");
+});
+
+test("only last value with own enum", () => {
+  expect(
+    sum([["🔴", "red"], ["🍏", "green"], ["👕", "blue"], ["🚕", "yellow"]], {
+      ranging: false,
+      i18n: {
+        "list-group-enum-last": " – yet "
+      }
+    })
+  ).toBe("🔴: red. 🍏: green. 👕: blue – yet 🚕: yellow");
 });

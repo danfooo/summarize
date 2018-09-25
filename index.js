@@ -17,39 +17,45 @@ const sum = (list, options = {}) => {
   }
 
   doneWith = [];
-  return _list
-    .reduce((acc, item, i, list) => {
-      if (doneWith.includes(item)) {
-        return acc;
+  const groups = _list.reduce((acc, item, i, list) => {
+    if (doneWith.includes(item)) {
+      return acc;
+    }
+
+    const indices = list.reduce((acc, listItem, index) => {
+      if (listItem === item) {
+        acc.push(index);
       }
+      return acc;
+    }, []);
 
-      const indices = list.reduce((acc, listItem, index) => {
-        if (listItem === item) {
-          acc.push(index);
-        }
-        return acc;
-      }, []);
+    const ranges = options.ranging
+      ? indicesToRanges(indices)
+      : indices.map(index => ({
+          from: index,
+          length: 1
+        }));
+    const rangeTexts = rangesToTexts(ranges, options);
 
-      const ranges = options.ranging
-        ? indicesToRanges(indices)
-        : indices.map(index => ({
-            from: index,
-            length: 1
-          }));
-      const rangeTexts = rangesToTexts(ranges, options);
+    doneWith.push(item);
 
-      doneWith.push(item);
+    const sumJoinArgs = [
+      rangeTexts,
+      options.i18n["list-enum"],
+      options.i18n["list-enum-last"]
+    ];
+    const valueSeparator = options.i18n["value"] || ": ";
 
-      const sumJoinArgs = [
-        rangeTexts,
-        options.i18n["list-enum"],
-        options.i18n["list-enum-last"]
-      ];
-      const valueSeparator = options.i18n["value"] || ": ";
+    return [...acc, `${sumJoin(...sumJoinArgs)}${valueSeparator}${item}`];
+  }, []);
 
-      return [...acc, `${sumJoin(...sumJoinArgs)}${valueSeparator}${item}`];
-    }, [])
-    .join(options.i18n["value-group"] || ". ");
+  return sumJoin(
+    groups,
+    options.i18n["list-group-enum"] || ". ",
+    options.i18n["list-group-enum-last"] ||
+      options.i18n["list-group-enum"] ||
+      ". "
+  );
 };
 
 const indicesToRanges = indices => {
@@ -57,7 +63,7 @@ const indicesToRanges = indices => {
   // [ 1 ] => [Range{from: 1, length: 1}] (=> "1")
 
   // Special case: Don't produce ranges of only two subsequent items.
-  // Those are better summed up individual values
+  // Those sound better when summed up as individual values
   // [ 1, 2 ] => [Range{from: 1, length: 1}, Range{from: 2, length: 1}] (=> "1, 2")
 
   let result = [];
