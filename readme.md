@@ -8,7 +8,7 @@ sum([
   "Work", "Work", "Work", "Work", "Work", "Weekend", "Weekend"
 ])
 ```
-Becomes `1 to 5: Work, 6 and 7: Weekend`.
+Becomes `1 to 5: Work. 6 and 7: Weekend`.
 
 It can also be configured with labels for what positions in the list stand for.
 
